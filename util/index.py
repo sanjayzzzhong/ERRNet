@@ -1,3 +1,9 @@
+# -*- coding: UTF-8 -*-
+'''
+@Author: sanjayzhong
+@Github: https://github.com/sanjayzzzhong
+@Date: 2019-12-13 14:15:37
+'''
 # Metrics/Indexes
 from skimage.measure import compare_ssim, compare_psnr
 from functools import partial
@@ -55,6 +61,7 @@ def local_error(correct, estimate, window_size, window_shift):
     # assert np.isnan(ssq/total)
     return ssq / total
 
+# 计算图片质量
 def quality_assess(X, Y):
     # Y: correct; X: estimate
     psnr = np.mean(cal_bwpsnr(Y, X))
