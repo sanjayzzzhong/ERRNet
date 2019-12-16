@@ -17,19 +17,19 @@ opt.display_id=0
 opt.verbose = False
 
 # 待评估数据文件目录
-datadir = '.'
+datadir = '/home/sanjay/FDisk/Reflection_Projects/perceptual-reflection-removal'
 
 # Define evaluation/test dataset
 
-eval_dataset_ceilnet = datasets.CEILTestDataset(join(datadir, 'test_img'))
+eval_dataset_ceilnet = datasets.CEILTestDataset(join(datadir, 'real'))
 # eval_dataset_ceilnet = datasets.CEILTestDataset(join(datadir, 'testdata_CEILNET_table2'))
 # eval_dataset_sir2 = datasets.CEILTestDataset(join(datadir, 'sir2_withgt'))
 
 # 这里评估CEILNet的真实数据
-eval_dataset_real = datasets.CEILTestDataset(
-    join(datadir, 'real20'),
-    fns=read_fns('real_test.txt'),
-    size=20)
+# eval_dataset_real = datasets.CEILTestDataset(
+#     join(datadir, 'real'),
+#     fns=read_fns('real_test.txt'),
+#     size=2)
 
 # 同上, 只是测评postcard和solidobject
 # eval_dataset_postcard = datasets.CEILTestDataset(join(datadir, 'postcard'))
@@ -45,11 +45,11 @@ eval_dataset_real = datasets.CEILTestDataset(
 ###################################### 加载数据 ########################
 eval_dataloader_ceilnet = datasets.DataLoader(
     eval_dataset_ceilnet, batch_size=1, shuffle=False,
-    num_workers=opt.nThreads, pin_memory=True)
+    pin_memory=True)
 
-eval_dataloader_real = datasets.DataLoader(
-    eval_dataset_real, batch_size=1, shuffle=False,
-    num_workers=opt.nThreads, pin_memory=True)
+# eval_dataloader_real = datasets.DataLoader(
+#     eval_dataset_real, batch_size=1, shuffle=False,
+#     num_workers=opt.nThreads, pin_memory=True)
 
 # eval_dataloader_sir2 = datasets.DataLoader(
 #     eval_dataset_sir2, batch_size=1, shuffle=False,

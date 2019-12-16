@@ -1,3 +1,6 @@
+'''
+数据处理类函数
+'''
 import os.path
 from os.path import join
 from data.image_folder import make_dataset
@@ -14,6 +17,7 @@ import util.util as util
 import data.torchdata as torchdata
 
 
+# 功能： 根据width缩放图片
 def __scale_width(img, target_width):
     ow, oh = img.size
     if (ow == target_width):
@@ -23,6 +27,7 @@ def __scale_width(img, target_width):
     h = math.ceil(h / 2.) * 2  # round up to even
     return img.resize((w, h), Image.BICUBIC)
 
+# 根据height缩放图片
 def __scale_height(img, target_height):
     ow, oh = img.size
     if (oh == target_height):
@@ -62,7 +67,7 @@ def paired_data_transforms(img_1, img_2, unaligned_transforms=False):
     i, j, h, w = get_params(img_1, (224,224))
     # i, j, h, w = get_params(img_1, (256,256))
     img_1 = F.crop(img_1, i, j, h, w)
-    
+    # 使数据进行偏移
     if unaligned_transforms:
         # print('random shift')
         i_shift = random.randint(-10, 10)
@@ -77,9 +82,10 @@ def paired_data_transforms(img_1, img_2, unaligned_transforms=False):
 
 BaseDataset = torchdata.Dataset
 
-
+# 数据加载器
 class DataLoader(torch.utils.data.DataLoader):
     def __init__(self, dataset, batch_size, shuffle, *args, **kwargs):
+        # 父类是初始化函数
         super(DataLoader, self).__init__(dataset, batch_size, shuffle, *args, **kwargs)
         self.shuffle = shuffle
 
@@ -89,7 +95,9 @@ class DataLoader(torch.utils.data.DataLoader):
             self.dataset.reset()
 
 
+# 定义CELD数据集， 需要继承抽象类BaseDateset
 class CEILDataset(BaseDataset):
+    # 传入数据所在目录
     def __init__(self, datadir, fns=None, size=None, enable_transforms=True, low_sigma=2, high_sigma=5, low_gamma=1.3, high_gamma=1.3):
         super(CEILDataset, self).__init__()
         self.size = size
@@ -101,6 +109,7 @@ class CEILDataset(BaseDataset):
         if size is not None:
             self.paths = self.paths[:size]
 
+        # 制造合成数据
         self.syn_model = ReflectionSythesis_1(kernel_sizes=[11], low_sigma=low_sigma, high_sigma=high_sigma, low_gamma=low_gamma, high_gamma=high_gamma)
         self.reset(shuffle=False)
 
@@ -108,8 +117,12 @@ class CEILDataset(BaseDataset):
         if shuffle:
             random.shuffle(self.paths)
         num_paths = len(self.paths) // 2
+        # 背景路径
         self.B_paths = self.paths[0:num_paths]
+        print("self.B_paths: {}".format(self.B_paths))
+        # 反光路径
         self.R_paths = self.paths[num_paths:2*num_paths]
+        print("self.R_path: {}".format(self.R_paths))
 
     def data_synthesis(self, t_img, r_img):
         if self.enable_transforms:
@@ -117,6 +130,7 @@ class CEILDataset(BaseDataset):
         syn_model = self.syn_model
         t_img, r_img, m_img = syn_model(t_img, r_img)
         
+        #Ｂ：背景层　Ｒ：反光层　Ｍ：混合层
         B = to_tensor(t_img)
         R = to_tensor(r_img)
         M = to_tensor(m_img)
